@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.axboot.domain.education.EducationDhyunMapper">
+    <sql id="where-list">
+        <if test="companyNm!=null and companyNm!=''">
+            AND COMPANY_NM like '%'|| #{companyNm} ||'%'
+        </if>
+        <if test="ceo!=null and ceo!=''">
+            AND CEO like '%'|| #{ceo} ||'%'
+        </if>
+        <if test="bizno!=null and bizno!=''">
+            AND BIZNO like '%'|| #{bizno} ||'%'
+        </if>
+        <if test="useYn!=null and useYn!=''">
+            AND USE_YN = #{useYn}
+        </if>
+    </sql>
+
+    <select id="selectList" parameterType="educationDhyun" resultType="educationDhyun" statementType="PREPARED">
+        SELECT
+            ID, COMPANY_NM AS companyNm, CEO AS ceo, BIZNO AS bizno, TEL AS tel, EMAIL AS email, USE_YN AS useYn
+        FROM EDUCATION_DHYUN
+        <where>
+            <include refid="where-list"/>
+        </where>
+        ORDER BY ID ASC
+    </select>
+
+    <select id="selectListPage" parameterType="map" resultType="educationDhyun" statementType="PREPARED">
+        SELECT
+        ID, COMPANY_NM AS companyNm, CEO AS ceo, BIZNO AS bizno, TEL AS tel, EMAIL AS email, USE_YN AS useYn
+        FROM EDUCATION_DHYUN
+        <where>
+            <include refid="where-list"/>
+        </where>
+        ORDER BY ID ASC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="dataCount" parameterType="map" resultType="int" statementType="PREPARED">
+        SELECT COUNT(*) FROM EDUCATION_DHYUN
+        <where>
+            <include refid="where-list"/>
+        </where>
+    </select>
+
+    <select id="select" parameterType="map" resultType="educationDhyun" statementType="PREPARED">
+        SELECT
+            ID, COMPANY_NM AS companyNm, CEO AS ceo, BIZNO AS bizno, TEL AS tel, EMAIL AS email, USE_YN AS useYn
+        FROM EDUCATION_DHYUN
+        <where>
+            <include refid="where-list"/>
+        </where>
+        ORDER BY ID ASC
+    </select>
+
+    <select id="selectOne" parameterType="Long" resultType="educationDhyun">
+        SELECT
+            ID, COMPANY_NM AS companyNm, CEO AS ceo, BIZNO AS bizno, TEL AS tel,
+            ZIP AS zip, ADDRESS AS address, ADDRESS_DATAIL AS addressDetail, EMAIL AS email,
+            REMARK AS remark, USE_YN AS useYn
+            FROM EDUCATION_DHYUN
+        WHERE ID=#{id}
+    </select>
+
+    <insert id="insert" parameterType="educationDhyun">
+        INSERT
+            INTO EDUCATION_DHYUN (COMPANY_NM, CEO, BIZNO, TEL, ZIP, ADDRESS, ADDRESS_DATAIL, EMAIL, REMARK, USE_YN)
+        VALUES
+            (#{companyNm}, #{ceo}, #{bizno}, #{tel}, #{zip}, #{address}, #{addressDetail}, #{email}, #{remark}, #{useYn})
+    </insert>
+
+    <update id="update" parameterType="educationDhyun">
+        UPDATE EDUCATION_DHYUN SET
+            COMPANY_NM=#{companyNm}, CEO=#{ceo}, BIZNO=#{bizno}, TEL=#{tel},
+            ZIP=#{zip}, ADDRESS=#{address}, ADDRESS_DATAIL=#{addressDetail}, EMAIL=#{email},
+            REMARK=#{remark}, USE_YN=#{useYn}
+        WHERE
+            ID=#{id}
+    </update>
+
+    <delete id="delete" parameterType="Long">
+        DELETE FROM EDUCATION_DHYUN WHERE ID=#{id}
+    </delete>
+</mapper>

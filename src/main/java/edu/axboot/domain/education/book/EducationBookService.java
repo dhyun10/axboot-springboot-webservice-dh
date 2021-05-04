@@ -15,8 +15,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-//public class EducationBookService extends BaseService<EducationBook, Long> {
-public class EducationBookService {
+public class EducationBookService extends BaseService<EducationBook, Long> {
     private final EducationBookRepository educationBookRepository;
 
     @Transactional
@@ -47,9 +46,8 @@ public class EducationBookService {
         return new EducationResponseDto(entity);
     }
 
-/*
     @Transactional(readOnly = true)
-    public List<EducationListResponseDto> findBy(String companyNm, String ceo, String bizno) {
+    public List<EducationListResponseDto> findBy(String companyNm, String ceo, String bizno, String useYn) {
         BooleanBuilder builder = new BooleanBuilder();
 
         if (isNotEmpty(companyNm)) {
@@ -60,6 +58,9 @@ public class EducationBookService {
         }
         if (isNotEmpty(bizno)) {
             builder.and(qEducationBook.bizno.like(bizno + "%"));
+        }
+        if (isNotEmpty(useYn)) {
+            builder.and(qEducationBook.useYn.eq(useYn));
         }
 
         List<EducationBook> entitis = select()
@@ -73,5 +74,4 @@ public class EducationBookService {
                 .map(EducationListResponseDto::new)
                 .collect(Collectors.toList());
     }
-*/
 }
