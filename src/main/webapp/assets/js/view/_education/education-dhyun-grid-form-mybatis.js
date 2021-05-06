@@ -6,7 +6,7 @@ var ACTIONS = axboot.actionExtend(fnObj, {
 
         axboot.ajax({
             type: 'GET',
-            url: '/api/v1/dhyunGridForm',
+            url: '/api/v1/dhyunGridForm/myBatis/listPage',
             data: paramObj,
             callback: function (res) {
                 caller.gridView01.setData(res);
@@ -21,7 +21,7 @@ var ACTIONS = axboot.actionExtend(fnObj, {
 
             axboot.ajax({
                 type: 'POST',
-                url: '/api/v1/dhyunGridForm',
+                url: '/api/v1/dhyunGridForm/myBatis',
                 data: JSON.stringify(item),
                 callback: function (res) {
                     ACTIONS.dispatch(ACTIONS.PAGE_SEARCH);
@@ -37,7 +37,7 @@ var ACTIONS = axboot.actionExtend(fnObj, {
         var id = data.id;
         axboot.ajax({
             type: 'GET',
-            url: '/api/v1/dhyunGridForm/' + id,
+            url: '/api/v1/dhyunGridForm/myBatis/' + id,
             callback: function (res) {
                 caller.formView01.setData(res);
             },
@@ -50,7 +50,7 @@ var ACTIONS = axboot.actionExtend(fnObj, {
         });
         axboot.ajax({
             type: 'DELETE',
-            url: '/api/v1/dhyunGridForm?ids=' + ids.join(','),
+            url: '/api/v1/dhyunGridForm/myBatis?ids=' + ids.join(','),
             callback: function (res) {
                 ACTIONS.dispatch(ACTIONS.PAGE_SEARCH);
                 axToast.push('삭제되었습니다.');

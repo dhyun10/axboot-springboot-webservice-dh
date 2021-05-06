@@ -35,11 +35,10 @@ public class DahyunGridFormController extends BaseController {
         List<EducationDhyun> list=educationDhyunService.getByQueryDsl(requestParams);
 
         Pageable pageable=requestParams.getPageable();
+        int start=(int)pageable.getOffset();
+        int end=(start+pageable.getPageSize())>list.size() ? list.size() : (start+ pageable.getPageSize());
 
-        int pageSize= pageable.getPageSize();
-        int offset=pageable.getOffset();
-
-        Page<EducationDhyun> page=new PageImpl<>(list, pageable, list.size());
+        Page<EducationDhyun> page=new PageImpl<>(list.subList(start,end), pageable, list.size());
 
         return Responses.PageResponse.of(page);
     }
@@ -61,11 +60,11 @@ public class DahyunGridFormController extends BaseController {
         return ok();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = APPLICATION_JSON)
+    @RequestMapping(method = RequestMethod.DELETE, produces = APPLICATION_JSON)
     public ApiResponse delete(
-            @PathVariable Long id
+            @RequestParam List<Long> ids
     ) {
-        educationDhyunService.remove(id);
+        educationDhyunService.remove(ids);
         return ok();
     }
 }

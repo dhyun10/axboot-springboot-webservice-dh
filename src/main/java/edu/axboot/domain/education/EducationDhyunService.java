@@ -239,6 +239,13 @@ public class EducationDhyunService extends BaseService<EducationDhyun, Long> {
         delete(qEducationDhyun).where(qEducationDhyun.id.eq(id)).execute();
     }
 
+    @Transactional
+    public void remove(List<Long> ids) {
+        for(Long id : ids) {
+            remove(id);
+        }
+    }
+
     public List<EducationDhyun> select(String companyNm, String ceo, String bizno, String useYn) {
         if(!"".equals(useYn) && !"Y".equals(useYn) && !"N".equals(useYn)) {
             throw new RuntimeException("Y 아니면 N 입력하세요");
@@ -268,5 +275,11 @@ public class EducationDhyunService extends BaseService<EducationDhyun, Long> {
 
     public void del(Long id) {
         educationDhyunMapper.delete(id);
+    }
+
+    public void del(List<Long> ids) {
+        for(Long id : ids) {
+            del(id);
+        }
     }
 }

@@ -3,9 +3,11 @@ package edu.axboot.controllers;
 import com.chequer.axboot.core.api.response.ApiResponse;
 import com.chequer.axboot.core.api.response.Responses;
 import com.chequer.axboot.core.controllers.BaseController;
+import com.chequer.axboot.core.parameter.RequestParams;
 import edu.axboot.domain.education.EducationDhyun;
 import edu.axboot.domain.education.EducationDhyunService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -23,21 +25,18 @@ public class DahyunGridFormMybatisController extends BaseController {
     private EducationDhyunService educationDhyunService;
 
     @RequestMapping(method = RequestMethod.GET, produces = APPLICATION_JSON)
-    public Responses.ListResponse list(
-            @RequestParam(value = "companyNm", required = false) String companyNm,
-            @RequestParam(value = "ceo", required = false) String ceo,
-            @RequestParam(value = "bizno", required = false) String bizno,
-            @RequestParam(value = "useYn", required = false) String useYn
+    public Responses.PageResponse list(
+            RequestParams requestParams
     ) {
         try {
-            List<EducationDhyun> list=educationDhyunService.select(companyNm, ceo, bizno, useYn);
-            return Responses.ListResponse.of(list);
+            Page<EducationDhyun> page=educationDhyunService.selectListPage(requestParams);
+            return Responses.PageResponse.of(page);
         } catch (BadSqlGrammarException e) {
             log.error("MyBatis 조회 오류. 쿼리 확인 !!!!");
-            return Responses.ListResponse.of(null);
+            return Responses.PageResponse.of(null);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
-            return Responses.ListResponse.of(null);
+            return Responses.PageResponse.of(null);
         }
 
     }
@@ -59,11 +58,11 @@ public class DahyunGridFormMybatisController extends BaseController {
         return ok();
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = APPLICATION_JSON)
+    @RequestMapping(method = RequestMethod.DELETE, produces = APPLICATION_JSON)
     public ApiResponse delete(
-            @PathVariable Long id
+            @RequestParam List<Long> ids
     ) {
-        educationDhyunService.del(id);
+        educationDhyunService.del(ids);
         return ok();
     }
 }
