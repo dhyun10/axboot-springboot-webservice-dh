@@ -9,6 +9,7 @@ tagdir="/WEB-INF/tags" %>
     <jsp:attribute name="script">
         <ax:script-lang key="ax.script" />
         <ax:script-lang key="ax.base" var="COL" />
+        <script type="text/javascript" src="https://cdn.rawgit.com/ax5ui/ax5ui-uploader/master/dist/ax5uploader.js"></script>
         <script type="text/javascript" src="<c:url value='/assets/js/view/_education/education-dhyun-grid-form.js' />"></script>
     </jsp:attribute>
     <jsp:body>
@@ -136,13 +137,23 @@ tagdir="/WEB-INF/tags" %>
                                 </div>          
                             </div>
                             <div data-ax-tr>
-                                <di data-ax-td style="width:100%">
+                                <div data-ax-td style="width:100%">
                                     <div data-ax-td-label style="width:150px">비고</div>
                                     <div data-ax-td-wrap>
-                                        <textarea rows="5" data-ax-path="remark" class="form-control"></textarea>                   
+                                        <textarea rows="5" data-ax-path="remark" name="editor1" id="editor1" class="form-control"></textarea>                   
                                     </div>
                                 </div>          
                             </div>
+                            <ax:tr labelWidth="150px">
+                                <ax:td label="첨부파일 <i class='icon-info-circled cp'></i>" width="100%">
+                                    <div data-ax5uploader="upload1">
+                                        <input type="hidden" id="targetType" name="targetType" value="EDUCATION_DHYUN" />
+                                        <button data-ax5uploader-button="selector" class="btn btn-primary">Select File (*/*)</button>
+                                        (Upload Max fileSize 100MB)
+                                        <div data-uploaded-box="upload1" data-ax5uploader-uploaded-box="inline"></div>
+                                    </div>
+                                </ax:td>
+                            </ax:tr>
                         </div>
                     </div>
                 </form>

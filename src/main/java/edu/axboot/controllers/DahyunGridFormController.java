@@ -54,9 +54,9 @@ public class DahyunGridFormController extends BaseController {
 
     @RequestMapping(method = RequestMethod.POST, produces = APPLICATION_JSON)
     public ApiResponse save(
-            @RequestBody EducationDhyun educationDhyun
+            @RequestBody EducationDhyun request
     ) {
-        educationDhyunService.persist(educationDhyun);
+        educationDhyunService.saveUsingQueryDsl(request);
         return ok();
     }
 
@@ -64,7 +64,7 @@ public class DahyunGridFormController extends BaseController {
     public ApiResponse delete(
             @RequestParam List<Long> ids
     ) {
-        educationDhyunService.remove(ids);
+        educationDhyunService.deleteUsingQueryDsl(ids);
         return ok();
     }
 }

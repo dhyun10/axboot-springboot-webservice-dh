@@ -118,7 +118,7 @@ fnObj.gridView01 = axboot.viewExtend(axboot.gridView, {
                 onClick: function () {
                     this.self.select(this.dindex, { selectedClear: true });
                 },
-                onDBLClick: function () {
+                ondblclick: function () {
                     ACTIONS.dispatch(ACTIONS.MODAL_OPEN, this.item);
                 },
             },

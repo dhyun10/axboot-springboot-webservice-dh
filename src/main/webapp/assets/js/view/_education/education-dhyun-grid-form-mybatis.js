@@ -6,7 +6,7 @@ var ACTIONS = axboot.actionExtend(fnObj, {
 
         axboot.ajax({
             type: 'GET',
-            url: '/api/v1/dhyunGridForm/myBatis/listPage',
+            url: '/api/v1/dhyunGridForm/myBatis',
             data: paramObj,
             callback: function (res) {
                 caller.gridView01.setData(res);

@@ -1,17 +1,33 @@
 package edu.axboot.domain.education;
 
+import com.chequer.axboot.core.api.ApiException;
 import com.chequer.axboot.core.parameter.RequestParams;
+import com.chequer.axboot.core.utils.CoreUtils;
 import com.querydsl.core.BooleanBuilder;
 import edu.axboot.domain.BaseService;
+import edu.axboot.domain.file.CommonFile;
+import edu.axboot.domain.file.CommonFileService;
+import edu.axboot.domain.file.UploadParameters;
+import edu.axboot.fileupload.FileUploadService;
+import edu.axboot.fileupload.UploadFile;
+import org.apache.commons.io.FileUtils;
+import org.jxls.reader.ReaderBuilder;
+import org.jxls.reader.ReaderConfig;
+import org.jxls.reader.XLSReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +41,12 @@ public class EducationDhyunService extends BaseService<EducationDhyun, Long> {
 
     @Inject
     private EducationDhyunMapper educationDhyunMapper;
+
+    @Autowired
+    private CommonFileService commonFileService;
+
+    @Autowired
+    private FileUploadService fileUploadService;
 
     @Inject
     public EducationDhyunService(EducationDhyunRepository educationDhyunRepository) {
@@ -214,35 +236,49 @@ public class EducationDhyunService extends BaseService<EducationDhyun, Long> {
     }
 
     @Transactional
-    public void persist(EducationDhyun educationDhyun) {
-        if(educationDhyun.getId()==null || educationDhyun.getId()==0) {
-            save(educationDhyun);
+    public void saveUsingQueryDsl(EducationDhyun entity) {
+        if(entity.getId()==null || entity.getId()==0) {
+            if (entity.getFileIdList().size() > 0) {
+               entity.setAttachId(CoreUtils.getUUID().replaceAll("-", ""));
+
+               List<CommonFile> commonFileList = new ArrayList<>();
+
+               for(Long fileId : entity.getFileIdList()) {
+                   CommonFile commonFile = commonFileService.findOne(fileId);
+                   commonFile.setTargetId(entity.getAttachId());
+                   commonFileList.add(commonFile);
+               }
+
+               entity.setFileList(commonFileList);
+            }
+
+            this.educationDhyunRepository.save(entity);
         } else {
             update(qEducationDhyun)
-                    .set(qEducationDhyun.companyNm, educationDhyun.getCompanyNm())
-                    .set(qEducationDhyun.ceo, educationDhyun.getCeo())
-                    .set(qEducationDhyun.bizno, educationDhyun.getBizno())
-                    .set(qEducationDhyun.tel, educationDhyun.getTel())
-                    .set(qEducationDhyun.zip, educationDhyun.getZip())
-                    .set(qEducationDhyun.address, educationDhyun.getAddress())
-                    .set(qEducationDhyun.addressDetail, educationDhyun.getAddressDetail())
-                    .set(qEducationDhyun.email, educationDhyun.getEmail())
-                    .set(qEducationDhyun.remark, educationDhyun.getRemark())
-                    .set(qEducationDhyun.useYn, educationDhyun.getUseYn())
-                    .where(qEducationDhyun.id.eq(educationDhyun.getId()))
+                    .set(qEducationDhyun.companyNm, entity.getCompanyNm())
+                    .set(qEducationDhyun.ceo, entity.getCeo())
+                    .set(qEducationDhyun.bizno, entity.getBizno())
+                    .set(qEducationDhyun.tel, entity.getTel())
+                    .set(qEducationDhyun.zip, entity.getZip())
+                    .set(qEducationDhyun.address, entity.getAddress())
+                    .set(qEducationDhyun.addressDetail, entity.getAddressDetail())
+                    .set(qEducationDhyun.email, entity.getEmail())
+                    .set(qEducationDhyun.remark, entity.getRemark())
+                    .set(qEducationDhyun.useYn, entity.getUseYn())
+                    .where(qEducationDhyun.id.eq(entity.getId()))
                     .execute();
         }
     }
 
     @Transactional
-    public void remove(Long id) {
+    public void deleteUsingQueryDsl(Long id) {
         delete(qEducationDhyun).where(qEducationDhyun.id.eq(id)).execute();
     }
 
     @Transactional
-    public void remove(List<Long> ids) {
+    public void deleteUsingQueryDsl(List<Long> ids) {
         for(Long id : ids) {
-            remove(id);
+            deleteUsingQueryDsl(id);
         }
     }
 
@@ -282,4 +318,61 @@ public class EducationDhyunService extends BaseService<EducationDhyun, Long> {
             del(id);
         }
     }
+
+    @Transactional
+    public String saveDataByExcel(UploadFile uploadFile) throws Exception {
+        String resultMsg="";
+
+        ReaderConfig.getInstance().setSkipErrors(true);
+
+        XLSReader mainReader = ReaderBuilder.buildFromXML(new ClassPathResource("/excel/education_upload.xml").getInputStream());
+        List<EducationDhyun> entities = new ArrayList();
+
+        Map beans = new HashMap();
+        beans.put("educationList", entities);
+
+        String excelFile = uploadFile.getSavePath();
+        File file = new File(excelFile);
+        mainReader.read(FileUtils.openInputStream(file), beans);
+        // 일반적인 파일을 읽는 방법
+
+        int rowIndex = 1;
+
+        for (EducationDhyun entity : entities) {
+            if (StringUtils.isEmpty(entity.getCompanyNm())) {
+                resultMsg = String.format("%d 번째 줄의 회사명이 비어있습니다.", rowIndex);
+                throw new ApiException(String.format("%d 번째 줄의 회사명이 비어있습니다.", rowIndex));
+            }
+
+            if (StringUtils.isEmpty(entity.getCeo())) {
+                resultMsg = String.format("%d 번째 줄의 대표자가 비어있습니다.", rowIndex);
+                throw new ApiException(String.format("%d 번째 줄의 대표자가 비어있습니다.", rowIndex));
+            }
+
+            if (StringUtils.isEmpty(entity.getUseYn())) {
+                resultMsg = String.format("%d 번째 줄의 사용여부가 비어있습니다.", rowIndex);
+                throw new ApiException(String.format("%d 번째 줄의 사용여부가 비어있습니다.", rowIndex));
+            }
+
+            save(entity);
+
+            rowIndex++;
+        }
+
+        return resultMsg;
+    }
+
+    @Transactional
+    public String uploadFileByExcel(MultipartFile multipartFile) throws Exception {
+        UploadParameters uploadParameters = new UploadParameters();
+        uploadParameters.setMultipartFile(multipartFile);
+
+        UploadFile uploadFile = fileUploadService.addCommonFile(uploadParameters);
+        String result = this.saveDataByExcel(uploadFile);
+
+        fileUploadService.deleteFile(uploadFile.getSavePath());
+
+        return result;
+    }
+
 }

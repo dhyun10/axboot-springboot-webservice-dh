@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface EducationDhyunMapper extends MyBatisMapper {
+//public interface EducationDhyunMapper {
     List<EducationDhyun> selectList(EducationDhyun educationDhyun);
     List<EducationDhyun> selectListPage(Map<String, Object> map);
     int dataCount(Map<String, Object> map);

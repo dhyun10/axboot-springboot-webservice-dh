@@ -14,10 +14,14 @@ import edu.axboot.domain.education.EducationTeach;
 import edu.axboot.domain.education.EducationTeachService;
 import edu.axboot.utils.MiscUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -46,6 +50,17 @@ public class TeachExcelController extends BaseController {
         ExcelUtils.renderExcel("/excel/education_teach.xlsx", list, "Education_" + DateUtils.getYyyyMMddHHmmssWithDate(), request, response);
     }
 
+    @RequestMapping(value = "/exceldown2", method = {RequestMethod.POST}, produces = APPLICATION_JSON)
+    public ResponseEntity<byte[]> excelDown2(RequestParams<EducationTeach> requestParams, HttpServletRequest request, HttpServletResponse response) throws IOException {
+/*
+        List<EducationExcelResponseDto> list = educationTeachService.getListExcel(requestParams);
+        String excelFile = excelService.exportExcel(list, UUIDUtils.shortUUID());
+        ResponseEntity<byte[]> res = filedownloadService.getExcel(excelFile, "Education_" + DateUtils.getYyyyMMddHHmmssWithDate() + ".xlsx");
+        return res;
+*/
+        return null;
+    }
+
     /**
      * 엑셀업로드
      * @param : fileId
@@ -53,10 +68,11 @@ public class TeachExcelController extends BaseController {
      */
     @ApiOperation(value = "엑셀업로드", notes = "/resources/excel/education_upload.xml")
     @RequestMapping(value = "/excelupload", method = {RequestMethod.POST}, produces = APPLICATION_JSON)
-    public ApiResponse excel(HttpServletRequest request) throws Exception{
-        String resultMsg = educationTeachService.uploadExcelData(Long.parseLong(request.getParameter("fileId").toString()));
+    public ApiResponse excel(@RequestParam(value = "formFile") MultipartFile multipartFile) throws Exception{
 
-        if (!resultMsg.equals("")) {
+        String resultMsg = educationTeachService.uploadFileByExcel(multipartFile);
+
+        if (!StringUtils.isEmpty(resultMsg)) {
             return ApiResponse.error(ApiStatus.SYSTEM_ERROR, resultMsg);
         }
 

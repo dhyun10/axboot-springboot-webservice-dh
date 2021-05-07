@@ -9,7 +9,7 @@ tagdir="/WEB-INF/tags" %>
     <jsp:attribute name="script">
         <ax:script-lang key="ax.script" />
         <ax:script-lang key="ax.base" var="COL" />
-        <script type="text/javascript" src="<c:url value='/assets/js/view/_education/education-dhyun-grid-form.js' />"></script>
+        <script type="text/javascript" src="<c:url value='/assets/js/view/_education/education-dhyun-grid-form-mybatis.js' />"></script>
     </jsp:attribute>
     <jsp:body>
         <ax:page-buttons></ax:page-buttons>
